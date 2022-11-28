@@ -12,12 +12,9 @@ def agent_portrayal(agent, shape = "circle", color = "red", filled = True, size 
     return portrayal
 
 def main():
-    #model = Inteseccion(5, 1, 10)
-    #for i in range(5):
-    #    model.step()
-    grid = mesa.visualization.CanvasGrid(agent_portrayal, 1, 10, 50, 500)
+    grid = mesa.visualization.CanvasGrid(agent_portrayal, 10, 10, 500, 500)
     server = mesa.visualization.ModularServer(
-        Inteseccion, [grid], "Rotonda", {"N":6, "width":1, "height":10}
+        Inteseccion, [grid], "Rotonda", {"N":8, "width":10, "height":10}
     )
     server.port = 8522
     server.launch()
