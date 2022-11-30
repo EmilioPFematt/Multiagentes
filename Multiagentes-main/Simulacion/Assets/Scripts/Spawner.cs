@@ -65,7 +65,7 @@ public class Spawner : MonoBehaviour
         }
         coroutine = WaitAndPrint(5.0f); //se ejecuta cada cinco segundos la coroutine
 
-        print("Starting " + Time.time);
+        print("Starting " + Time.time); 
 
         StartCoroutine(coroutine);
 
