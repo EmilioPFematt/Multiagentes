@@ -1,35 +1,54 @@
 import mesa
 
+
 class Car(mesa.Agent):
-    def __init__(self, unique_id, model):
+    def __init__(self, unique_id, model, exits):
         super().__init__(unique_id, model)
+        self.exit = self.random.choice(exits)
+        
     
     def step(self):
         self.move()
     
     def move(self):
-        pos_adj = self.model.grid.get_neighborhood(
-            self.pos,
-            moore = False,
-            include_center = False
-        )
-        neighbors = [i.pos for i in self.model.grid.get_neighbors(self.pos, False)]
-        val = [i for i in pos_adj if i not in neighbors]
-        new_position = self.pos
-        if(len(val) != 0):
-            new_position = self.random.choice(val)
-        self.model.grid.move_agent(self, new_position)
+        if(self.pos[1] == self.exit):
+            new_position = (self.pos[0]+1, self.pos[1])
+            if(new_position[0] < self.model.grid.width and self.model.grid.is_cell_empty(new_position)):
+                self.model.grid.move_agent(self, new_position)
+            else:
+                self.model.grid.remove_agent(self)
+                self.model.schedule.remove(self)
+        elif self.pos[0] > 1 :
+            new_position = (self.pos[0]-1, self.pos[1])
+            if(self.model.grid.is_cell_empty(new_position)): 
+                self.model.grid.move_agent(self, new_position)
+        else :       
+            new_position = (self.pos[0], (self.pos[1]+1)%self.model.grid.height)
+            if(self.model.grid.is_cell_empty(new_position)): 
+                self.model.grid.move_agent(self, new_position)
 
+        
 class Inteseccion(mesa.Model):
     def __init__(self, N, width, height):
+        #print(width)
+        #print(height)
         self.num_agents = N
-        self.grid = mesa.space.Grid(width, height, False)
+        self.grid = mesa.space.SingleGrid(width, height, True)
         self.schedule = mesa.time.RandomActivation(self)
+        exits = [1, 5, 9, 13]
+        ins = [0, 4, 8, 12]
+        av_pos2 = []
+        for i in range(height):
+            av_pos2.append([i for i in range(2, width)])
 
         for i in range(self.num_agents):
-            a = Car(i, self)
+            a = Car(i, self, exits)
             self.schedule.add(a)
-            self.grid.place_agent(a, (self.random.randrange(width), self.random.randrange(height)))
+            y = a.random.choice(ins)
+            while(len(av_pos2[y]) == 0):
+                y = a.random.choice(ins)
+            self.grid.position_agent(a, a.random.choice(av_pos2[y]), y)
+            av_pos2[y].remove(a.pos[0])
         
     def step(self):
         self.schedule.step()
