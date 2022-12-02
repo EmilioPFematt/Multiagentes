@@ -1,47 +1,34 @@
-
+from MESA.main import generate_data
 from flask import Flask, jsonify, request 
+import math
 
 app = Flask(__name__)
 
-data = [
-    {
-        'id': 1,
-        'x': 3,
-        'y': 25,
-    },
-    {
-        'id': 2,
-        'x': 5,
-        'y': 25,
-    },
-    {
-        'id': 3,
-        'x': 15,
-        'y': 5,
-    },
-    {
-        'id': 4,
-        'x': 1,
-        'y': 8,
-    },
-    {
-        'id': 5,
-        'x': 5,
-        'y': 1,
-    }
-]
+data = []
+num_agents = 5 
+steps = 0
+
+
+@app.route("/steps")
+def get_steps():
+    return jsonify({"steps":steps})
+
+@app.route("/cars")
+def get_cars():
+    return jsonify({"cars":num_agents})
 
 @app.route('/data', methods=['GET'])
 def get_data():
-    return jsonify({'data': data})
+    return jsonify(data)
 
 
 @app.route('/data/<int:id>', methods=['GET'])
 def get_data_by_id(id):
+    dato = []
     for data_item in data:
         if data_item['id'] == id:
-            return jsonify({'data': data_item})
-    return jsonify({'message': 'data not found'})
+            dato.append(data_item)
+    return jsonify(dato) if len(dato) > 0 else jsonify({'message': 'data not found'})
 
 @app.route('/data', methods=['POST'])
 def add_data():
@@ -66,6 +53,8 @@ def update_data(id):
     return jsonify({'message': 'data not found'})
 
 if __name__ == '__main__':
+    data = generate_data()
+    steps = len([i for i in data if i['id'] == 0])
     app.run(port=3000, debug=True)
 
 

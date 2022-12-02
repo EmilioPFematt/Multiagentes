@@ -15,9 +15,8 @@ class Car(mesa.Agent):
             new_position = (self.pos[0]+1, self.pos[1])
             if(new_position[0] < self.model.grid.width and self.model.grid.is_cell_empty(new_position)):
                 self.model.grid.move_agent(self, new_position)
-            else:
-                self.model.grid.remove_agent(self)
-                self.model.schedule.remove(self)
+            elif new_position[0] < self.model.grid.width :
+                self.model.grid.move_agent(self, new_position)
         elif self.pos[0] > 1 :
             new_position = (self.pos[0]-1, self.pos[1])
             if(self.model.grid.is_cell_empty(new_position)): 
@@ -27,16 +26,15 @@ class Car(mesa.Agent):
             if(self.model.grid.is_cell_empty(new_position)): 
                 self.model.grid.move_agent(self, new_position)
 
-        
 class Inteseccion(mesa.Model):
     def __init__(self, N, width, height):
         #print(width)
         #print(height)
         self.num_agents = N
-        self.grid = mesa.space.SingleGrid(width, height, True)
+        self.grid = mesa.space.MultiGrid(width, height, True)
         self.schedule = mesa.time.RandomActivation(self)
         exits = [1, 5, 9, 13]
-        ins = [0, 4, 8, 12]
+        ins = [3, 7, 11, 15]
         av_pos2 = []
         for i in range(height):
             av_pos2.append([i for i in range(2, width)])
@@ -47,7 +45,7 @@ class Inteseccion(mesa.Model):
             y = a.random.choice(ins)
             while(len(av_pos2[y]) == 0):
                 y = a.random.choice(ins)
-            self.grid.position_agent(a, a.random.choice(av_pos2[y]), y)
+            self.grid.place_agent(a, (a.random.choice(av_pos2[y]), y))
             av_pos2[y].remove(a.pos[0])
         
     def step(self):
